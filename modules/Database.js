@@ -341,7 +341,7 @@ class Database {
             }
         },
         register: async (req, res) => {
-            const { titulo, descricao, tipo, modo, selectedQuestionIds } = req.body;
+            const { titulo, descricao, tipo, selectedQuestionIds } = req.body;
             const usuarioId = req.session.userId;
             try {
 
@@ -376,7 +376,7 @@ class Database {
                     descricao,
                     id_usuario: usuarioId,
                     tipo: tipoFormatado,
-                    modo, // Include modo if your model supports it
+                     // Include modo if your model supports it
                 });
 
                 if (!simulado) {

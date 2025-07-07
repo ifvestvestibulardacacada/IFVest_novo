@@ -24,12 +24,9 @@ class Render {
             res.status(200).render('usuario/inicio');
         },
         login: async (req, res) => {
-            let errorMessage = req.session.errorMessage;
-            console.log(errorMessage);
-            if (errorMessage === null) {
-                errorMessage = " ";
-            }
-            req.session.errorMessage = null; // Limpa a mensagem de erro após exibi-la
+            let errorMessage = req.cookies.errorMessage || '';
+
+            res.clearCookie('errorMessage'); // Limpa a mensagem de erro após exibi-la
             res.status(200).render('usuario/login', { errorMessage });
         }
     }
@@ -140,7 +137,7 @@ class Render {
                 const totalPages = Math.ceil(questoesCount / limit);
                 console.log(3) // ! Log temporário
                 // Buscar todas as áreas para o filtro
-                const topicos = await Topico.findAll();console.log(4) // ! Log temporário
+                const topicos = await Topico.findAll(); console.log(4) // ! Log temporário
                 const Areas = await Area.findAll({
                     include: [{
                         model: Topico,
@@ -152,7 +149,7 @@ class Render {
                 let questoesFiltradas = questoes;
                 if (titulo) {
                     questoesFiltradas = questoes.filter(questao => questao.titulo.toLowerCase().includes(titulo.toLowerCase()));
-                }console.log(6) // ! Log temporário
+                } console.log(6) // ! Log temporário
                 if (areaId && areaId !== "") {
                     questoesFiltradas = questoes.filter(questao => questao.id_area === Number(areaId));
                 }
@@ -163,10 +160,10 @@ class Render {
                         const topicos = Array.isArray(questao.Topico) ? questao.Topico : [];
                         return topicos.some(topico => topicosIds.includes(topico.id_topico));
                     });
-                }console.log(8) // ! Log temporário
+                } console.log(8) // ! Log temporário
                 if (pergunta) {
                     questoesFiltradas = questoes.filter(questao => questao.pergunta.toLowerCase().includes(pergunta.toLowerCase()));
-                }console.log(9) // ! Log temporário
+                } console.log(9) // ! Log temporário
 
                 let errorMessage = req.session.errorMessage;
 
@@ -362,7 +359,7 @@ class Render {
                         as: 'Topico',
                     },
                 ],
-                
+
             });
 
             let errorMessage = req.session.errorMessage;

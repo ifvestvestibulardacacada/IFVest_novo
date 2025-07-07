@@ -53,14 +53,8 @@ class Auth {
 
             return res.redirect('/usuario/inicioLogado');
         } catch (error) {
-            
-            req.session.errorMessage = error.message;
-            await new Promise((resolve, reject) => {
-                req.session.save(err => {
-                    if (err) reject(err);
-                    else resolve();
-                });
-            });
+
+            res.cookie('errorMessage', error.message);
             return res.redirect(req.session.lastGetUrl || '/');
         }
     }
@@ -104,12 +98,12 @@ class Auth {
             throw new Error("Dados Invalidos ou Incompletos")
         }
         const senhaCriptografada = await bcrypt.hash(senha, 10);
-        
+
         try {
-            await Usuario.create({ nome, usuario, senha: senhaCriptografada, email, tipo_perfil:perfil });
+            await Usuario.create({ nome, usuario, senha: senhaCriptografada, email, tipo_perfil: perfil });
 
             res.status(201).redirect('/login');
-        } catch (err) {
+        } catch (error) {
             console.error(error);
             req.session.errorMessage = error.message;
             await new Promise((resolve, reject) => {

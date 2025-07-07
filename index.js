@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { secure_pass } = require('./middleware/sessionMidleware');
 const sessionOptions = require('./utils/sessionConfig');
+const cookieParser = require('cookie-parser');
 const { usuarios, simulados, inicio, professor, uploads } = require('./routes');
 const path = require('path');
 
@@ -17,6 +18,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use(session(sessionOptions));
+app.use(cookieParser());
 
 
 // app.use(helmet({

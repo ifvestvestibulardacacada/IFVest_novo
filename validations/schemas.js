@@ -4,14 +4,13 @@ const { z } = require('zod');
 const patterns = {
   sqlPattern: /\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|EXEC|UNION|--|;)\b/i,
   usernamePattern: /^[a-zA-Z0-9_.-]{3,30}$/,
-  passwordPattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+  passwordPattern: /^(?=.*[A-Za-z])(?=.*\d).{8,}$/,
   textPattern: /^[\wÀ-ÿ0-9\s.,;:!?'"()\-]+$/i
 };
 
 const authSchemas = {
   login: z.object({
     usuario: z.string()
-      .min(3, "O nome de usuário deve ter pelo menos 3 caracteres")
       .max(30, "O nome de usuário não pode exceder 30 caracteres")
       .regex(patterns.usernamePattern, "O nome de usuário deve conter apenas letras, números, _, ., ou -")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de nome de usuário inválido" }),
@@ -20,18 +19,16 @@ const authSchemas = {
   }),
   cadastro: z.object({
     nome: z.string()
-      .min(3, "O nome deve ter pelo menos 3 caracteres")
       .max(100, "O nome não pode exceder 100 caracteres")
       .regex(patterns.textPattern, "Formato de nome inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de nome inválido" }),
     usuario: z.string()
-      .min(3)
       .max(30)
       .regex(patterns.usernamePattern, "O nome de usuário deve conter apenas letras, números, _, ., ou -")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de nome de usuário inválido" }),
     senha: z.string()
-      .regex(patterns.passwordPattern, "Formato de senha inválido")
-      .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de nome de usuário inválido" }),
+      .regex(patterns.passwordPattern, "A senha deve conter pelo menos 8 caracteres com letra maiúscula, minúscula, número e caracteres especiais " )
+      .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de senha inválido" }),
     email: z.string()
       .email("Formato de e-mail inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de e-mail inválido" }),
@@ -51,8 +48,8 @@ const questionSchemas = {
     areaId: z.string()
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de título inválido" }),
     correta: z.string()
-      .length(1)
-      .regex(/^[A-E]$/, "A resposta correta deve ser uma letra do A ao E"),
+      .regex(/^[A-E]$/, "A resposta correta deve ser uma letra do A ao E")
+      .optional(),
     topicosSelecionados: z.array(z.string()),
     respostasSelecionadas: z.string().min(1),
   }),
@@ -60,7 +57,6 @@ const questionSchemas = {
     id: z.string()
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de título inválido" }),
     titulo: z.string()
-      .min(3)
       .max(200)
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de título inválido" }),
     pergunta: z.string(),
@@ -77,12 +73,10 @@ const questionSchemas = {
 const simuladoSchemas = {
   register: z.object({
     titulo: z.string()
-      .min(3)
       .max(200)
       .regex(patterns.textPattern, "Formato de título inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de título inválido" }),
     descricao: z.string()
-      .min(10)
       .max(1000)
       .regex(patterns.textPattern, "Formato da descrição inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato da descrição inválido" }),
@@ -93,7 +87,6 @@ const simuladoSchemas = {
   }),
   edit: z.object({
     titulo: z.string()
-      .min(3)
       .max(200)
       .regex(patterns.textPattern, "Formato de título inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de título inválido" }),
@@ -126,16 +119,15 @@ addQuestion: z.object({
 const topicoSchemas = {
   register: z.object({
     topico: z.string()
-      .min(3)
       .max(100)
       .regex(patterns.textPattern, "Formato do tópico inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato do tópico inválido" }),
     areaIdTopico: z.string()
+    .refine(val => !patterns.sqlPattern.test(val), { message: "Formato do tópico inválido" }),
   }),
   edit: z.object({
     id: z.string(),
     nome: z.string()
-      .min(3)
       .max(100)
       .regex(patterns.textPattern, "Formato do tópico inválido")
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato do tópico inválido" })
@@ -157,7 +149,7 @@ const userSchemas = {
       .refine(val => !patterns.sqlPattern.test(val), { message: "Formato de senha inválido" })
       .optional(),
     novasenha: z.string()
-      .regex(patterns.passwordPattern, "A senha deve conter pelo menos 8 caracteres com um número e uma letra")
+      .regex(patterns.passwordPattern, "A senha deve conter pelo menos 8 caracteres com letra maiúscula, minúscula, número e caracteres especiais")
       .optional()
   }).partial()
 };
