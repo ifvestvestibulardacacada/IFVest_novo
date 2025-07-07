@@ -86,8 +86,8 @@ class Database {
                     throw new Error(`Número de opções deve ser entre ${MIN_OPCOES} e ${MAX_OPCOES}`);
                 }
 
-    
-          
+
+
 
                 if ((tipo === 'DISSERTATIVA' && numOpcoes !== 1) ||
                     (tipo === 'OBJETIVA' && (numOpcoes < 4 || numOpcoes > 5))) {
@@ -247,17 +247,13 @@ class Database {
         addImage: async (req, res) => { // ? Antigo uploads/editorImageUploadController.js
             try {
                 // Verifica se uma imagem foi enviada
-                if (!req.file) {
+                if (!req.file || !req.file.path) {
                     throw new Error('Nenhum arquivo enviado.');
                 }
 
-                const url = `/uploads/${req.file.filename}`;
+                const imageUrl = req.file.path; // Cloudinary retorna a URL pública
 
-                if (!url) {
-                    throw new Error('Erro no upload da imagem');
-                }
-
-                res.status(200).json(url);
+                res.status(200).json(imageUrl);
 
             } catch (error) {
 
@@ -345,7 +341,7 @@ class Database {
             const usuarioId = req.session.userId;
             try {
 
-                if (!titulo || !descricao || !tipo ) {
+                if (!titulo || !descricao || !tipo) {
                     return res.status(400).json({ message: 'Dados inválidos: título, descrição, tipo e modo são obrigatórios.' });
                 }
 
@@ -376,7 +372,7 @@ class Database {
                     descricao,
                     id_usuario: usuarioId,
                     tipo: tipoFormatado,
-                     // Include modo if your model supports it
+                    // Include modo if your model supports it
                 });
 
                 if (!simulado) {
@@ -635,31 +631,31 @@ class Database {
         changeImg: async (req, res) => { // ? Antigo uploads/profileImageUploadControllers.js
             try {
                 // Verifica se uma imagem foi enviada
-                if (!req.file) {
+                if (!req.file || !req.file.path) {
                     throw new Error('Nenhum arquivo enviado.');
                 }
 
                 const idUsuario = req.session.userId;
-                const caminhoImagem = `/uploads/${req.file.filename}`;
+                const novaImagemUrl = req.file.path;
 
                 // Obtém o usuário atual
                 const usuario = await Usuario.findByPk(idUsuario);
 
                 // Remove a imagem antiga se existir
-                if (usuario.imagem_perfil) {
-                    removeFileFromUploads(usuario.imagem_perfil);
-                }
+                // if (usuario.imagem_perfil) {
+                //     removeFileFromUploads(usuario.imagem_perfil);
+                // }
 
                 // Verifica se uma nova imagem foi recebida
-                if (!caminhoImagem) {
+                if (!novaImagemUrl) {
                     throw new Error('Nenhum arquivo enviado.');
                 }
 
                 // Atualiza o banco de dados com a nova imagem
-                await Usuario.update({ imagem_perfil: caminhoImagem }, { where: { id_usuario: idUsuario } });
+                await Usuario.update({ imagem_perfil: novaImagemUrl }, { where: { id_usuario: idUsuario } });
 
                 // Atualiza a sessão com a nova imagem
-                req.session.imagemPerfil = caminhoImagem;
+                req.session.imagemPerfil = novaImagemUrl;
 
                 await new Promise((resolve, reject) => {
                     req.session.save(err => {
